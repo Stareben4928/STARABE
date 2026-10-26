@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STARAB - Apprendre l'Arabe Littéraire</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        skybrand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0a3650',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        arabic: ['Traditional Arabic', 'Amiri', 'Scheherazade New', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts pour l'Arabe -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .arabic-text { font-family: 'Amiri', serif; line-height: 1.8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .card-flip {
+            perspective: 1000px;
+        }
+        .card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .card-flip.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col min-h-screen">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-skybrand-100 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Brand -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('modules')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-skybrand-500 to-skybrand-300 flex items-center justify-center text-white shadow-md shadow-skybrand-200">
+                        <i class="fa-solid me-0.5 fa-moon text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-bold bg-gradient-to-r from-skybrand-700 to-skybrand-500 bg-clip-text text-transparent">STARAB</span>
+                        <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 ml-2 bg-skybrand-100 text-skybrand-700 rounded-full">Arabe Littéraire</span>
+                    </div>
+                </div>
+
+                <!-- Global Search Input -->
+                <div class="flex-1 max-w-md mx-4 hidden md:block">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="global-search-input" onkeyup="handleSearch(this.value)" placeholder="Rechercher mot, grammaire, module..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-skybrand-400 transition-all">
+                        <div id="search-results-dropdown" class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-100 max-h-80 overflow-y-auto z-50"></div>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleAudioSpeed()" id="speed-btn" class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition" title="Vitesse audio">
+                        1.0x Audio
+                    </button>
+                    <button onclick="switchTab('quiz')" class="p-2 text-skybrand-600 hover:bg-skybrand-50 rounded-lg transition relative md:hidden">
+                        <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+
+        <!-- Navigation Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 sticky top-22">
+                <nav class="space-y-1">
+                    <button onclick="switchTab('modules')" id="nav-modules" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition bg-skybrand-50 text-skybrand-600">
+                        <i class="fa-solid fa-book-open text-lg w-6"></i>
+                        <span>15 Modules de cours</span>
+                    </button>
+                    <button onclick="switchTab('conjugaison')" id="nav-conjugaison" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                        <i class="fa-solid fa-spell-check text-lg w-6"></i>
+                        <span>Laboratoire Conjugaison</span>
+                    </button>
+                    <button onclick="switchTab('flashcards')" id="nav-flashcards" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                        <i class="fa-solid fa-clone text-lg w-6"></i>
+                        <span>Flashcards Vocabulaire</span>
+                    </button>
+                    <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                        <i class="fa-solid fa-circle-question text-lg w-6"></i>
+                        <span>Quiz & Évaluation</span>
+                    </button>
+                    <button onclick="switchTab('dictionnaire')" id="nav-dictionnaire" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                        <i class="fa-solid fa-bookmark text-lg w-6"></i>
+                        <span>Lexique Global</span>
+                    </button>
+                </nav>
+
+                <!-- Progression Widget -->
+                <div class="mt-8 p-4 bg-gradient-to-br from-skybrand-500 to-skybrand-600 rounded-xl text-white shadow-md">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-medium uppercase tracking-wider text-skybrand-100">Progression</span>
+                        <span id="progression-percentage" class="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">0%</span>
+                    </div>
+                    <div class="w-full bg-black/20 rounded-full h-2 mb-3">
+                        <div id="progression-bar" class="bg-white h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-skybrand-100" id="progression-subtitle">0 / 15 modules complétés</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Dynamic Content Area -->
+        <main class="flex-1 min-w-0">
+
+            <!-- TAB 1: MODULES DE COURS -->
+            <section id="tab-modules" class="tab-content space-y-6">
+                <!-- Banner -->
+                <div class="bg-gradient-to-r from-skybrand-600 to-skybrand-400 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                    <div class="relative z-10 max-w-xl">
+                        <h1 class="text-2xl sm:text-3xl font-extrabold mb-2">Apprendre l'Arabe étape par étape</h1>
+                        <p class="text-skybrand-50 text-sm">Découvrez 15 modules progressifs structurés avec dialogues audio, grammaire claire, vocabulaire et exercices pratiques.</p>
+                    </div>
+                    <div class="absolute -right-8 -bottom-10 opacity-20 text-white text-9xl font-arabic select-none pointer-events-none">
+                        العربية
+                    </div>
+                </div>
+
+                <!-- Grid des 15 Modules -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="modules-grid">
+                    <!-- Généré dynamiquement par JS -->
+                </div>
+
+                <!-- Module Detail Modal / Full view -->
+                <div id="module-detail-container" class="hidden bg-white rounded-2xl p-6 shadow-md border border-slate-100 space-y-6">
+                    <!-- Injected dynamically -->
+                </div>
+            </section>
+
+            <!-- TAB 2: LABORATOIRE DE CONJUGAISON -->
+            <section id="tab-conjugaison" class="tab-content hidden space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-spell-check text-skybrand-500"></i>
+                        Laboratoire de Conjugaison Arabe
+                    </h2>
+                    <p class="text-sm text-slate-500 mb-6">Sélectionnez un verbe trilitère et observez sa conjugaison aux 3 temps principaux avec les pronoms personnels.</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Choisir un Verbe</label>
+                            <select id="conj-verb-select" onchange="updateConjugationTable()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-skybrand-400 outline-none">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Temps Verbal</label>
+                            <select id="conj-tense-select" onchange="updateConjugationTable()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-skybrand-400 outline-none">
+                                <option value="past">Accompli / Past (الماضي)</option>
+                                <option value="present">Inaccompli / Present (المضارع)</option>
+                                <option value="imperative">Impératif / Command (الأمر)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="speakSelectedConjugation()" class="w-full py-2.5 px-4 bg-skybrand-500 hover:bg-skybrand-600 text-white rounded-xl font-medium text-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-volume-high"></i> Écouter le verbe
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Table de conjugaison -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-skybrand-50 text-skybrand-800 text-xs font-bold uppercase">
+                                    <th class="p-3">Pronom (الضمير)</th>
+                                    <th class="p-3">Traduction</th>
+                                    <th class="p-3 text-right">Forme Conjugueé (الفعل)</th>
+                                    <th class="p-3 text-center">Audio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="conjugation-table-body" class="divide-y divide-slate-100 text-sm">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: FLASHCARDS -->
+            <section id="tab-flashcards" class="tab-content hidden space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 text-center max-w-xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-slate-800">Cartes Mémoire (Flashcards)</h2>
+                        <span id="flashcard-counter" class="text-xs font-semibold px-3 py-1 bg-skybrand-100 text-skybrand-700 rounded-full">1 / 10</span>
+                    </div>
+
+                    <!-- Flashcard Component -->
+                    <div id="flashcard-element" class="card-flip w-full h-64 cursor-pointer mb-6" onclick="this.classList.toggle('flipped')">
+                        <div class="card-inner w-full h-full relative rounded-2xl shadow-lg border border-skybrand-100 bg-gradient-to-br from-white to-skybrand-50 p-6 flex flex-col justify-center items-center">
+                            <!-- Front -->
+                            <div class="card-front absolute inset-0 p-6 flex flex-col justify-center items-center">
+                                <span class="text-xs uppercase font-bold tracking-widest text-skybrand-400 mb-2">Arabe</span>
+                                <p id="fc-arabic" class="arabic-text text-4xl font-bold text-slate-800 mb-2">مَرْحَبًا</p>
+                                <p id="fc-phonetic" class="text-sm text-slate-500 italic">Marhaban</p>
+                                <p class="text-xs text-slate-400 mt-6"><i class="fa-solid fa-rotate-right mr-1"></i> Cliquez pour révéler</p>
+                            </div>
+                            <!-- Back -->
+                            <div class="card-back absolute inset-0 p-6 flex flex-col justify-center items-center bg-skybrand-600 text-white rounded-2xl">
+                                <span class="text-xs uppercase font-bold tracking-widest text-skybrand-200 mb-2">Français</span>
+                                <p id="fc-french" class="text-2xl font-bold mb-2">Bonjour / Bienvenue</p>
+                                <button onclick="event.stopPropagation(); speakText(document.getElementById('fc-arabic').innerText)" class="mt-4 p-2 bg-white/20 hover:bg-white/30 rounded-full text-white text-sm transition">
+                                    <i class="fa-solid fa-volume-high px-2"></i> Réécouter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center gap-4">
+                        <button onclick="prevFlashcard()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> Précédent
+                        </button>
+                        <button onclick="nextFlashcard()" class="flex-1 py-3 bg-skybrand-500 hover:bg-skybrand-600 text-white font-semibold rounded-xl text-sm transition shadow-md shadow-skybrand-200">
+                            Suivant <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: QUIZ INTERACTIF -->
+            <section id="tab-quiz" class="tab-content hidden space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 max-w-2xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">Quiz d'Évaluation</h2>
+                            <p class="text-xs text-slate-500">Testez vos connaissances globales</p>
+                        </div>
+                        <div class="text-right">
+                            <span id="quiz-score" class="text-lg font-bold text-skybrand-600">Score: 0</span>
+                        </div>
+                    </div>
+
+                    <div id="quiz-body">
+                        <div class="mb-6">
+                            <span id="quiz-question-number" class="text-xs font-semibold uppercase text-skybrand-500">Question 1/5</span>
+                            <h3 id="quiz-question-text" class="text-lg font-bold text-slate-800 mt-1">Que signifie le mot "كِتَاب" (Kitāb) ?</h3>
+                        </div>
+
+                        <div id="quiz-options" class="space-y-3 mb-6">
+                            <!-- Quiz options generated dynamically -->
+                        </div>
+
+                        <div id="quiz-feedback" class="hidden p-4 rounded-xl text-sm mb-6"></div>
+
+                        <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="w-full py-3 bg-skybrand-500 hover:bg-skybrand-600 text-white font-bold rounded-xl text-sm transition shadow-md hidden">
+                            Question Suivante
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: LEXIQUE / DICTIONNAIRE -->
+            <section id="tab-dictionnaire" class="tab-content hidden space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">Lexique complet de l'application</h2>
+                    <p class="text-sm text-slate-500 mb-6">Retrouvez l'ensemble du vocabulaire présent dans les 15 modules.</p>
+
+                    <div class="mb-4">
+                        <input type="text" id="lexicon-filter" onkeyup="filterLexicon(this.value)" placeholder="Filtrer dans le dictionnaire..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-skybrand-400 outline-none">
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-skybrand-50 text-skybrand-800 text-xs font-bold uppercase">
+                                    <th class="p-3">Arabe</th>
+                                    <th class="p-3">Phonétique</th>
+                                    <th class="p-3">Français</th>
+                                    <th class="p-3 text-center">Écouter</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lexicon-table-body" class="divide-y divide-slate-100 text-sm">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Audio Speech Engine Script & Data Layer -->
+    <script>
+        // Data Structure for Modules
+        const MODULES = [
+            {
+                id: 1,
+                title: "Les Salutations & Présentation",
+                arabicTitle: "التَّحِيَّاتُ وَالتَّعَارُفُ",
+                desc: "Apprenez à dire bonjour, vous présenter et poser des questions simples de politesse.",
+                icon: "fa-comments",
+                dialogue: [
+                    { speaker: "Ahmad", ar: "السَّلاَمُ عَلَيْكُمْ", ph: "As-salāmu 'alaykum", fr: "Que la paix soit sur vous" },
+                    { speaker: "Karim", ar: "وَعَلَيْكُمُ السَّلاَمُ وَرَحْمَةُ اللهِ", ph: "Wa 'alaykum as-salām wa rahmatullāh", fr: "Et sur vous soit la paix et la miséricorde de Dieu" },
+                    { speaker: "Ahmad", ar: "مَا اسْمُكَ؟", ph: "Mā ismuka?", fr: "Comment t'appelles-tu ? (à un homme)" },
+                    { speaker: "Karim", ar: "اِسْمِي كَرِيمٌ. وَأَنْتَ؟", ph: "Ismī Karīm. Wa anta?", fr: "Je m'appelle Karim. Et toi ?" }
+                ],
+                grammar: {
+                    title: "Les Pronoms Personnels Isolés",
+                    text: "En arabe, les pronoms personnels s'utilisent pour désigner les personnes. Exexmples: 'أَنَا' (Anā = Je), 'أَنْتَ' (Anta = Tu masc.), 'أَنْتِ' (Anti = Tu fém.)."
+                },
+                vocab: [
+                    { ar: "مَرْحَبًا", ph: "Marhaban", fr: "Bonjour / Bienvenue" },
+                    { ar: "شُكْرًا", ph: "Shukran", fr: "Merci" },
+                    { ar: "عَفْوًا", ph: " 'Afwan", fr: "De rien" },
+                    { ar: "نَعَمْ", ph: "Na'am", fr: "Oui" },
+                    { ar: "لاَ", ph: "Lā", fr: "Non" }
+                ]
+            },
+            {
+                id: 2,
+                title: "La Famille & Les Relations",
+                arabicTitle: "الْعَائِلَةُ وَالأَقَارِبُ",
+                desc: "Vocabulaire essentiel des membres de la famille et expressions d'attachement.",
+                icon: "fa-users",
+                dialogue: [
+                    { speaker: "Sarah", ar: "مَنْ هَذَا؟", ph: "Man hādhā?", fr: "Qui est-ce ?" },
+                    { speaker: "Lina", ar: "هَذَا أَبِي وَهَذِهِ أُمِّي", ph: "Hādhā abī wa hādhihi ummī", fr: "C'est mon père et c'est ma mère" }
+                ],
+                grammar: {
+                    title: "Les Noms de Démonstration (هَذَا / هَذِهِ)",
+                    text: "Utilisez 'هَذَا' (Hādhā) pour le masculin singulier et 'هَذِهِ' (Hādhihi) pour le féminin singulier."
+                },
+                vocab: [
+                    { ar: "أَبٌ", ph: "Abun", fr: "Père" },
+                    { ar: "أُمٌّ", ph: "Ummun", fr: "Mère" },
+                    { ar: "أَخٌ", ph: "Akhun", fr: "Frère" },
+                    { ar: "أُخْتٌ", ph: "Ukhtun", fr: "Sœur" },
+                    { ar: "ابْنٌ", ph: "Ibnun", fr: "Fils" }
+                ]
+            },
+            {
+                id: 3,
+                title: "L'École et les Études",
+                arabicTitle: "الْمَدْرَسَةُ وَالدِّرَاسَةُ",
+                desc: "Nommer les objets de la classe, les matières et le milieu scolaire.",
+                icon: "fa-graduation-cap",
+                dialogue: [
+                    { speaker: "Élève", ar: "أَيْنَ الْكِتَابُ؟", ph: "Ayna al-kitāb?", fr: "Où est le livre ?" },
+                    { speaker: "Professeur", ar: "الْكِتَابُ عَلَى الْمَكْتَبِ", ph: "Al-kitābu 'alā al-maktab", fr: "Le livre est sur le bureau" }
+                ],
+                grammar: {
+                    title: "L'Article Défini (الْـ)",
+                    text: "L'ajout de 'ال' (Al-) rend un nom défini et retire la nunation (tanween) finale."
+                },
+                vocab: [
+                    { ar: "كِتَابٌ", ph: "Kitābun", fr: "Livre" },
+                    { ar: "قَلَمٌ", ph: "Qalamun", fr: "Stylo" },
+                    { ar: "مَكْتَبٌ", ph: "Maktabun", fr: "Bureau" },
+                    { ar: "مَدْرَسَةٌ", ph: "Madrasatun", fr: "École" },
+                    { ar: "طَالِبٌ", ph: "Tālibun", fr: "Étudiant" }
+                ]
+            },
+            {
+                id: 4,
+                title: "La Maison & Le Logement",
+                arabicTitle: "الْبَيْتُ وَالسَّكَنُ",
+                desc: "Décrire sa maison, les pièces et le mobilier du quotidien.",
+                icon: "fa-house",
+                dialogue: [
+                    { speaker: "Ali", ar: "أَيْنَ تَسْكُنُ؟", ph: "Ayna taskunu?", fr: "Où habites-tu ?" },
+                    { speaker: "Oumar", ar: "أَسْكُنُ فِي بَيْتٍ كَبِيرٍ", ph: "Askunu fī baytin kabīr", fr: "J'habite dans une grande maison" }
+                ],
+                grammar: {
+                    title: "L'Adjectif Qualificatif (النَّعْتُ)",
+                    text: "L'adjectif s'accorde en genre, en nombre et en définition avec le nom qu'il qualifie."
+                },
+                vocab: [
+                    { ar: "بَيْتٌ", ph: "Baytun", fr: "Maison" },
+                    { ar: "غُرْفَةٌ", ph: "Ghurfatun", fr: "Chambre" },
+                    { ar: "بَابٌ", ph: "Bābun", fr: "Porte" },
+                    { ar: "نَافِذَةٌ", ph: "Nāfidhatun", fr: "Fenêtre" },
+                    { ar: "كُرْسِيٌّ", ph: "Kursiyyun", fr: "Chaise" }
+                ]
+            },
+            {
+                id: 5,
+                title: "La Nourriture & La Cuisine",
+                arabicTitle: "الطَّعَامُ وَالشَّرَابُ",
+                desc: "Commander au restaurant, connaître le nom des repas et boissons.",
+                icon: "fa-utensils",
+                dialogue: [
+                    { speaker: "Serveur", ar: "مَاذَا تَطْلُبُ؟", ph: "Mādhā tatlubu?", fr: "Que désirez-vous ?" },
+                    { speaker: "Client", ar: "أُرِيدُ مَاءً وَخُبْزًا مِنْ فَضْلِكَ", ph: "Urīdu mā'an wa khubzan min fadlika", fr: "Je veux de l'eau et du pain s'il vous plaît" }
+                ],
+                grammar: {
+                    title: "Le Complément d'Objet Direct (الْمَفْعُولُ بِهِ)",
+                    text: "Le complément d'objet direct prend la marque d'accusatif (Fatha / Tanween Fath)."
+                },
+                vocab: [
+                    { ar: "مَاءٌ", ph: "Mā'un", fr: "Eau" },
+                    { ar: "خُبْزٌ", ph: "Khubzun", fr: "Pain" },
+                    { ar: "طَعَامٌ", ph: "Ta'āmun", fr: "Nourriture" },
+                    { ar: "حَلِيبٌ", ph: "Halībun", fr: "Lait" },
+                    { ar: "شَايٌ", ph: "Shāyun", fr: "Thé" }
+                ]
+            },
+            {
+                id: 6,
+                title: "Le Temps, les Jours et les Heures",
+                arabicTitle: "الْوَقْتُ وَالأَيَّامُ",
+                desc: "Exprimer l'heure, connaître les jours de la semaine et s'orienter dans le temps.",
+                icon: "fa-clock",
+                dialogue: [
+                    { speaker: "Youssef", ar: "كَمِ السَّاعَةُ الآنَ؟", ph: "Kami as-sā'atu al-ān?", fr: "Quelle heure est-il maintenant ?" },
+                    { speaker: "Nadia", ar: "السَّاعَةُ الثَّالِثَةُ تَمَامًا", ph: "As-sā'atu ath-thālithatu tamāman", fr: "Il est trois heures piles" }
+                ],
+                grammar: {
+                    title: "Les Nombres Ordinaux pour l'Heure",
+                    text: "L'heure s'exprime avec les adjectifs numéraux ordinaux féminins (الأُولَى, الثَّانِيَة, الثَّالِثَة)."
+                },
+                vocab: [
+                    { ar: "سَاعَةٌ", ph: "Sā'atun", fr: "Heure / Horloge" },
+                    { ar: "يَوْمٌ", ph: "Yawmun", fr: "Jour" },
+                    { ar: "الْيَوْمَ", ph: "Al-yawma", fr: "Aujourd'hui" },
+                    { ar: "غَدًا", ph: "Ghadan", fr: "Demain" },
+                    { ar: "أَمْسِ", ph: "Amsi", fr: "Hier" }
+                ]
+            },
+            {
+                id: 7,
+                title: "La Ville & Le Transport",
+                arabicTitle: "الْمَدِينَةُ وَالْمَوَاصَلاَتُ",
+                desc: "Demander son chemin, utiliser les moyens de transport et naviguer en ville.",
+                icon: "fa-city",
+                dialogue: [
+                    { speaker: "Voyageur", ar: "أَيْنَ مَحَطَّةُ الْحَافِلاَتِ؟", ph: "Ayna mahattatu al-hāfilāt?", fr: "Où est la station d'autobus ?" },
+                    { speaker: "Passant", ar: "اِذْهَبْ إِلىَ الأَمَامِ ثُمَّ يَمِينًا", ph: "Idhhab ilā al-amām thumma yamīnan", fr: "Allez tout droit puis à droite" }
+                ],
+                grammar: {
+                    title: "Les Prépositions de Lieu (حُرُوفُ الْجَرِّ)",
+                    text: "Les prépositions comme فِي (dans), عَلَى (sur), إِلىَ (vers) placent le nom suivant au cas genitif (Kasra)."
+                },
+                vocab: [
+                    { ar: "مَدِينَةٌ", ph: "Madīnatun", fr: "Ville" },
+                    { ar: "شَارِعٌ", ph: "Shāri'un", fr: "Rue" },
+                    { ar: "سَيَّارَةٌ", ph: "Sayyāratun", fr: "Voiture" },
+                    { ar: "حَافِلَةٌ", ph: "Hāfilatun", fr: "Autobus" },
+                    { ar: "سُوقٌ", ph: "Sūqun", fr: "Marché" }
+                ]
+            },
+            {
+                id: 8,
+                title: "Le Travail & Les Professions",
+                arabicTitle: "الْعَمَلُ وَالْمِهَنُ",
+                desc: "Parler de son métier, de ses activités professionnelles et du bureau.",
+                icon: "fa-briefcase",
+                dialogue: [
+                    { speaker: "Omar", ar: "مَا مِهْنَتُكَ؟", ph: "Mā mihnatuka?", fr: "Quel est ton métier ?" },
+                    { speaker: "Tariq", ar: "أَنَا مُهَنْدِسٌ وَأَعْمَلُ فِي شَرِكَةٍ", ph: "Anā muhandisun wa a'malu fī sharikah", fr: "Je suis ingénieur et je travaille dans une entreprise" }
+                ],
+                grammar: {
+                    title: "La Phrase Nominale (الْجُمْلَةُ الإِسْمِيَّةُ)",
+                    text: "Une phrase nominale commence par un nom et ne nécessite pas de verbe 'être' au présent."
+                },
+                vocab: [
+                    { ar: "طَبِيبٌ", ph: "Tabībun", fr: "Médecin" },
+                    { ar: "مُدَرِّسٌ", ph: "Mudarrisun", fr: "Enseignant" },
+                    { ar: "مُهَنْدِسٌ", ph: "Muhandisun", fr: "Ingénieur" },
+                    { ar: "تَاجِرٌ", ph: "Tājirun", fr: "Commerçant" },
+                    { ar: "عَمَلٌ", ph: " 'Amalun", fr: "Travail" }
+                ]
+            },
+            {
+                id: 9,
+                title: "Les Leçons du Marché & Achats",
+                arabicTitle: "التَّسَوُّقُ وَالتِّجَارَةُ",
+                desc: "Demander le prix, négocier et effectuer des achats au marché.",
+                icon: "fa-cart-shopping",
+                dialogue: [
+                    { speaker: "Acheteur", ar: "بِكَمْ هَذَا الثَّوْبُ؟", ph: "Bikam hādhā ath-thawb?", fr: "Combien coûte ce vêtement ?" },
+                    { speaker: "Vendeur", ar: "هَذَا بِعِشْرِينَ دِينَارًا", ph: "Hādhā bi-'ishrīna dīnāran", fr: "C'est à vingt dinars" }
+                ],
+                grammar: {
+                    title: "L'Interrogation avec (بِكَمْ)",
+                    text: "'بِكَمْ' est utilisé pour interroger sur le prix. Le nom qui suit est souvent au singulier."
+                },
+                vocab: [
+                    { ar: "ثَمَنٌ", ph: "Thamanun", fr: "Prix" },
+                    { ar: "رَخِيصٌ", ph: "Rakhīsun", fr: "Pas cher" },
+                    { ar: "غَالٍ", ph: "Ghālin", fr: "Cher" },
+                    { ar: "نَقْدٌ", ph: "Naqdun", fr: "Argent liquide" },
+                    { ar: "شِرَاءٌ", ph: "Shirā'un", fr: "Achat" }
+                ]
+            },
+            {
+                id: 10,
+                title: "La Santé & Le Corps Humain",
+                arabicTitle: "الصِّحَّةُ وَجِسْمُ الإِنْسَانِ",
+                desc: "Exprimer une douleur, consulter un médecin et nommer les parties du corps.",
+                icon: "fa-heart-pulse",
+                dialogue: [
+                    { speaker: "Patient", ar: "أَشْعُرُ بِأَلَمٍ فِي الرَّأْسِ", ph: "Ash'uru bi-alamin fī ar-ra's", fr: "J'ai mal à la tête" },
+                    { speaker: "Médecin", ar: "تَنَاوَلْ هَذَا الدَّوَاءَ وَاسْتَرِحْ", ph: "Tanāwal hādhā ad-dawā'a wastarih", fr: "Prends ce médicament et repose-toi" }
+                ],
+                grammar: {
+                    title: "L'Expression du Sentiment (أَشْعُرُ بِـ)",
+                    text: "Le verbe شَعَرَ (ressentir) s'emploie généralement suivi de la préposition بِـ."
+                },
+                vocab: [
+                    { ar: "رَأْسٌ", ph: "Ra'sun", fr: "Tête" },
+                    { ar: "عَيْنٌ", ph: " 'Aynun", fr: "Œil" },
+                    { ar: "مَرَضٌ", ph: "Maradun", fr: "Maladie" },
+                    { ar: "دَوَاءٌ", ph: "Dawā'un", fr: "Médicament" },
+                    { ar: "مُسْتَشْفَى", ph: "Mustashfā", fr: "Hôpital" }
+                ]
+            },
+            {
+                id: 11,
+                title: "La Météo & Les Saisons",
+                arabicTitle: "الطَّقْسُ وَالْفُصُولُ",
+                desc: "Parler du climat, des saisons et des conditions météorologiques.",
+                icon: "fa-cloud-sun",
+                dialogue: [
+                    { speaker: "Leila", ar: "كَيْفَ الطَّقْسُ الْيَوْمَ؟", ph: "Kayfa at-taqsu al-yawm?", fr: "Quel temps fait-il aujourd'hui ?" },
+                    { speaker: "Hassan", ar: "الطَّقْسُ حَارٌّ وَالشَّمْسُ مُشْرِقَةٌ", ph: "At-taqsu hārrun wash-shamsu mushriqah", fr: "Le temps est chaud et le soleil brille" }
+                ],
+                grammar: {
+                    title: "L'Accord de l'Adjectif Météo",
+                    text: "Certains mots comme شَمْس (soleil) sont féminins par nature en arabe, l'adjectif doit donc être au féminin."
+                },
+                vocab: [
+                    { ar: "طَقْسٌ", ph: "Taqsun", fr: "Météo / Temps" },
+                    { ar: "حَارٌّ", ph: "Hārrun", fr: "Chaud" },
+                    { ar: "بَارِدٌ", ph: "Bāridun", fr: "Froid" },
+                    { ar: "مَطَرٌ", ph: "Matarun", fr: "Pluie" },
+                    { ar: "شَمْسٌ", ph: "Shamsun", fr: "Soleil" }
+                ]
+            },
+            {
+                id: 12,
+                title: "Les Loisirs & Les Sports",
+                arabicTitle: "الرِّيَاضَةُ وَالْهِوَايَاتُ",
+                desc: "Développer le vocabulaire des passe-temps, activités et sports.",
+                icon: "fa-futbol",
+                dialogue: [
+                    { speaker: "Bilal", ar: "مَا هِيَ هِوَايَتُكَ الْمُفَضَّلَةُ؟", ph: "Mā hiya hiwāyatuka al-mufaddalah?", fr: "Quel est ton passe-temps préféré ?" },
+                    { speaker: "Sami", ar: "أُحِبُّ قِرَاءَةَ الْكُتُبِ وَكُرَةَ الْقَدَمِ", ph: "Uhibbu qirā'ata al-kutubi wa kurata al-qadam", fr: "J'aime lire des livres et le football" }
+                ],
+                grammar: {
+                    title: "Le Verbe d'Appréciation (أُحِبُّ)",
+                    text: "Le verbe 'أُحِبُّ' (J'aime) est suivi d'un nom à l'accusatif (Mansoub)."
+                },
+                vocab: [
+                    { ar: "رِيَاضَةٌ", ph: "Riyādatun", fr: "Sport" },
+                    { ar: "قِرَاءَةٌ", ph: "Qirā'atun", fr: "Lecture" },
+                    { ar: "سِباحَةٌ", ph: "Sibāhatun", fr: "Natation" },
+                    { ar: "كُرَةٌ", ph: "Kuratun", fr: "Ballon / Balle" },
+                    { ar: "مُسِيقَى", ph: "Mūsīqā", fr: "Musique" }
+                ]
+            },
+            {
+                id: 13,
+                title: "Les Voyages & Vacances",
+                arabicTitle: "السَّفَرُ وَالْعُطْلَةُ",
+                desc: "Réserver un hôtel, voyager en avion et découvrir de nouvelles cultures.",
+                icon: "fa-plane",
+                dialogue: [
+                    { speaker: "Voyageur", ar: "أُرِيدُ حَجْزَ غُرْفَةٍ فِي الْفُنْدُقِ", ph: "Urīdu hajza ghurfatin fī al-funduq", fr: "Je souhaite réserver une chambre à l'hôtel" },
+                    { speaker: "Réceptionniste", ar: "كَمْ لَيْلَةً سَتَقِيمُ هُنَا؟", ph: "Kam laylatan sataqīmu hunā?", fr: "Combien de nuits resterez-vous ?" }
+                ],
+                grammar: {
+                    title: "Le Futur Proche avec le Préfixe (سَـ)",
+                    text: "Ajouter la lettre 'سَـ' devant un verbe au présent exprime une action dans le futur proche."
+                },
+                vocab: [
+                    { ar: "سَفَرٌ", ph: "Safarun", fr: "Voyage" },
+                    { ar: "فُنْدُقٌ", ph: "Funduqun", fr: "Hôtel" },
+                    { ar: "طَائِرَةٌ", ph: "Tā'iratun", fr: "Avion" },
+                    { ar: "جَوَازُ سَفَرٍ", ph: "Jawāzu safarin", fr: "Passeport" },
+                    { ar: "عُطْلَةٌ", ph: " 'Utlatun", fr: "Vacances" }
+                ]
+            },
+            {
+                id: 14,
+                title: "Les Médias & La Technologie",
+                arabicTitle: "الإِعْلاَمُ وَالتِّكْنُولُوجِيَا",
+                desc: "S'exprimer sur Internet, les téléphones et les médias modernes.",
+                icon: "fa-laptop",
+                dialogue: [
+                    { speaker: "Karim", ar: "هَلْ عِنْدَكَ حِسَابٌ فِي النَّت؟", ph: "Hal 'indaka hisābun fī an-net?", fr: "As-tu un compte sur Internet ?" },
+                    { speaker: "Amine", ar: "نَعَمْ، أَرْسِلْ لِي رِسَالَةً إِلكْتِرُونِيَّةً", ph: "Na'am, arsil lī risālatan iliktrūniyyah", fr: "Oui, envoie-moi un e-mail" }
+                ],
+                grammar: {
+                    title: "L'Impératif (الأَمْرُ)",
+                    text: "L'impératif donne un ordre ou une instruction direct. Exemple: أَرْسِلْ (Envoie!)."
+                },
+                vocab: [
+                    { ar: "حَاسُوبٌ", ph: "Hāsūbun", fr: "Ordinateur" },
+                    { ar: "هَاتِفٌ", ph: "Hātifun", fr: "Téléphone" },
+                    { ar: "إِنْتَرْنِت", ph: "Intarnit", fr: "Internet" },
+                    { ar: "رِسَالَةٌ", ph: "Risālatun", fr: "Message" },
+                    { ar: "شَاشَةٌ", ph: "Shāshatun", fr: "Écran" }
+                ]
+            },
+            {
+                id: 15,
+                title: "La Culture & La Poésie Arabe",
+                arabicTitle: "الثَّقَافَةُ وَالأَدَبُ الْعَرَبِيُّ",
+                desc: "Découvrir des proverbes, la poésie classique et la richesse culturelle.",
+                icon: "fa-feather",
+                dialogue: [
+                    { speaker: "Professeur", ar: "العِلْمُ نُورٌ وَالْجَهْلُ ظَلاَمٌ", ph: "Al-'ilmu nūrun wal-jahlu zalām", fr: "La science est une lumière et l'ignorance est obscurité" },
+                    { speaker: "Étudiant", ar: "هَذَا مَثَلٌ عَرَبِيٌّ جَمِيلٌ جِدًّا", ph: "Hādhā mathalun 'arabiyyun jamīlun jiddan", fr: "C'est un très beau proverbe arabe" }
+                ],
+                grammar: {
+                    title: "La Structure de la Sagesse / Proverbe",
+                    text: "Les proverbes arabes utilisent souvent des parallélismes de phrases nominales directes et percutantes."
+                },
+                vocab: [
+                    { ar: "عِلْمٌ", ph: " 'Ilmun", fr: "Savoir / Science" },
+                    { ar: "أَدَبٌ", ph: "Adabun", fr: "Littérature" },
+                    { ar: "شِعْرٌ", ph: "Shi'run", fr: "Poésie" },
+                    { ar: "حِكْمَةٌ", ph: "Hikmatun", fr: "Sagesse" },
+                    { ar: "مَثَلٌ", ph: "Mathalun", fr: "Proverbe" }
+                ]
+            }
+        ];
+
+        // Conjugation Data Laboratory
+        const CONJUGAISON_DATA = [
+            {
+                verb: "كَتَبَ (Écrire)",
+                root: "ك t ب",
+                past: {
+                    ana: "كَتَبْتُ", anta: "كَتَبْتَ", anti: "كَتَبْتِ",
+                    huwa: "كَتَبَ", hiya: "كَتَبَتْ", nahnu: "كَتَبْنَا"
+                },
+                present: {
+                    ana: "أَكْتُبُ", anta: "تَكْتُبُ", anti: "تَكْتُبِينَ",
+                    huwa: "يَكْتُبُ", hiya: "تَكْتُبُ", nahnu: "نَكْتُبُ"
+                },
+                imperative: {
+                    anta: "اُكْتُبْ", anti: "اُكْتُبِي"
+                }
+            },
+            {
+                verb: "قَرَأَ (Lire)",
+                root: "ق ر أ",
+                past: {
+                    ana: "قَرَأْتُ", anta: "قَرَأْتَ", anti: "قَرَأْتِ",
+                    huwa: "قَرَأَ", hiya: "قَرَأَتْ", nahnu: "قَرَأْنَا"
+                },
+                present: {
+                    ana: "أَقْرَأُ", anta: "تَقْرَأُ", anti: "تَقْرَأِينَ",
+                    huwa: "يَقْرَأُ", hiya: "تَقْرَأُ", nahnu: "نَقْرَأُ"
+                },
+                imperative: {
+                    anta: "اقْرَأْ", anti: "اقْرَئِي"
+                }
+            },
+            {
+                verb: "ذَهَبَ (Aller)",
+                root: "ذ هـ ب",
+                past: {
+                    ana: "ذَهَبْتُ", anta: "ذَهَبْتَ", anti: "ذَهَبْتِ",
+                    huwa: "ذَهَبَ", hiya: "ذَهَبَتْ", nahnu: "ذَهَبْنَا"
+                },
+                present: {
+                    ana: "أَذْهَبُ", anta: "تَذْهَبُ", anti: "تَذْهَبِينَ",
+                    huwa: "يَذْهَبُ", hiya: "تَذْهَبُ", nahnu: "نَذْهَبُ"
+                },
+                imperative: {
+                    anta: "اذْهَبْ", anti: "اذْهَبِي"
+                }
+            }
+        ];
+
+        // Quiz Questions
+        const QUIZ_QUESTIONS = [
+            {
+                q: "Que signifie 'كِتَابٌ' (Kitābun) en français ?",
+                options: ["Un livre", "Un stylo", "Une maison", "Une chaise"],
+                correct: 0
+            },
+            {
+                q: "Quel pronom signifie 'Je' en arabe ?",
+                options: ["أَنْتَ (Anta)", "هُوَ (Huwa)", "أَنَا (Anā)", "نَحْنُ (Nahnu)"],
+                correct: 2
+            },
+            {
+                q: "Comment répond-on à 'السَّلاَمُ عَلَيْكُمْ' ?",
+                options: ["شُكْرًا", "وَعَلَيْكُمُ السَّلاَمُ", "مَرْحَبًا", "عَفْوًا"],
+                correct: 1
+            },
+            {
+                q: "Le mot 'طَبِيبٌ' désigne :",
+                options: ["Un ingénieur", "Un enseignant", "Un médecin", "Un commerçant"],
+                correct: 2
+            },
+            {
+                q: "Que signifie 'شُكْرًا' (Shukran) ?",
+                options: ["S'il vous plaît", "Au revoir", "De rien", "Merci"],
+                correct: 3
+            }
+        ];
+
+        // Application State Variables
+        let currentTab = 'modules';
+        let completedModules = new Set();
+        let audioSpeed = 1.0;
+        let currentFCIndex = 0;
+        let allVocabList = [];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderModulesGrid();
+            populateConjugationSelect();
+            updateConjugationTable();
+            buildGlobalVocabList();
+            renderFlashcard();
+            renderQuizQuestion();
+            renderLexiconTable();
+            updateProgress();
+        });
+
+        // Speech Synthesis Function
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop current playing speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA';
+                utterance.rate = audioSpeed;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("La synthèse vocale n'est pas supportée par votre navigateur.");
+            }
+        }
+
+        function toggleAudioSpeed() {
+            if (audioSpeed === 1.0) audioSpeed = 0.75;
+            else if (audioSpeed === 0.75) audioSpeed = 0.5;
+            else audioSpeed = 1.0;
+            document.getElementById('speed-btn').innerText = audioSpeed + 'x Audio';
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-skybrand-50', 'text-skybrand-600', 'font-semibold');
+                el.classList.add('text-slate-600', 'font-medium');
+            });
+
+            const activeContent = document.getElementById(`tab-${tabId}`);
+            if (activeContent) activeContent.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-skybrand-50', 'text-skybrand-600', 'font-semibold');
+                activeNav.classList.remove('text-slate-600');
+            }
+
+            // Hide detail view when switching to modules
+            if (tabId === 'modules') {
+                document.getElementById('module-detail-container').classList.add('hidden');
+                document.getElementById('modules-grid').classList.remove('hidden');
+            }
+        }
+
+        // Render Grid of 15 Modules
+        function renderModulesGrid() {
+            const grid = document.getElementById('modules-grid');
+            grid.innerHTML = MODULES.map(m => `
+                <div onclick="openModule(${m.id})" class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-skybrand-50 group-hover:bg-skybrand-500 text-skybrand-600 group-hover:text-white flex items-center justify-center transition">
+                                <i class="fa-solid ${m.icon} text-lg"></i>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">MODULE ${m.id}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-base mb-1 group-hover:text-skybrand-600 transition">${m.title}</h3>
+                        <p class="text-right text-xs font-arabic text-skybrand-700 font-semibold mb-2">${m.arabicTitle}</p>
+                        <p class="text-xs text-slate-500 line-clamp-2">${m.desc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center text-xs">
+                        <span class="${completedModules.has(m.id) ? 'text-emerald-600 font-semibold' : 'text-slate-400'} flex items-center gap-1">
+                            <i class="fa-solid ${completedModules.has(m.id) ? 'fa-circle-check' : 'fa-circle-notch'}"></i>
+                            ${completedModules.has(m.id) ? 'Terminé' : 'À faire'}
+                        </span>
+                        <span class="text-skybrand-500 font-medium group-hover:translate-x-1 transition flex items-center gap-1">
+                            Démarrer <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open Selected Module
+        function openModule(id) {
+            const module = MODULES.find(m => m.id === id);
+            if (!module) return;
+
+            const grid = document.getElementById('modules-grid');
+            const container = document.getElementById('module-detail-container');
+
+            grid.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            container.innerHTML = `
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <button onclick="closeModuleDetail()" class="text-xs font-semibold text-slate-500 hover:text-skybrand-600 flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Retour aux modules
+                    </button>
+                    <span class="text-xs font-bold px-3 py-1 bg-skybrand-100 text-skybrand-800 rounded-full">Module ${module.id} / 15</span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">${module.title}</h2>
+                        <p class="text-lg font-arabic font-bold text-skybrand-600">${module.arabicTitle}</p>
+                    </div>
+                    <button onclick="toggleModuleCompletion(${module.id})" class="px-4 py-2 text-xs font-bold rounded-xl transition ${completedModules.has(module.id) ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-skybrand-500 text-white hover:bg-skybrand-600'}">
+                        <i class="fa-solid ${completedModules.has(module.id) ? 'fa-check-circle' : 'fa-circle'} mr-1"></i>
+                        ${completedModules.has(module.id) ? 'Marqué comme complété' : 'Marquer comme terminé'}
+                    </button>
+                </div>
+
+                <!-- Dialogue Section -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-4">
+                    <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-skybrand-500"></i> Dialogue Pratique
+                    </h3>
+                    <div class="space-y-3">
+                        ${module.dialogue.map(d => `
+                            <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                <div class="space-y-1">
+                                    <span class="text-xs font-bold text-slate-400 uppercase">${d.speaker}</span>
+                                    <p class="arabic-text text-xl font-bold text-slate-800">${d.ar}</p>
+                                    <p class="text-xs text-slate-500 italic">${d.ph} — <span class="not-italic text-slate-700 font-medium">${d.fr}</span></p>
+                                </div>
+                                <button onclick="speakText('${d.ar}')" class="p-2.5 text-skybrand-600 bg-skybrand-50 hover:bg-skybrand-100 rounded-xl transition self-end sm:self-center">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Grammar Section -->
+                <div class="bg-skybrand-50/50 rounded-2xl p-5 border border-skybrand-100 space-y-2">
+                    <h3 class="font-bold text-skybrand-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-book text-skybrand-500"></i> Règle de Grammaire : ${module.grammar.title}
+                    </h3>
+                    <p class="text-sm text-slate-700 leading-relaxed">${module.grammar.text}</p>
+                </div>
+
+                <!-- Vocabulary List -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-list text-skybrand-500"></i> Vocabulaire du Module
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${module.vocab.map(v => `
+                            <div class="p-3 bg-white rounded-xl border border-slate-100 flex justify-between items-center">
+                                <div>
+                                    <p class="arabic-text text-lg font-bold text-slate-800">${v.ar}</p>
+                                    <p class="text-xs text-slate-500">${v.ph} • <span class="font-semibold text-slate-700">${v.fr}</span></p>
+                                </div>
+                                <button onclick="speakText('${v.ar}')" class="p-2 text-slate-400 hover:text-skybrand-600 transition">
+                                    <i class="fa-solid fa-volume-high text-sm"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeModuleDetail() {
+            document.getElementById('module-detail-container').classList.add('hidden');
+            document.getElementById('modules-grid').classList.remove('hidden');
+        }
+
+        function toggleModuleCompletion(id) {
+            if (completedModules.has(id)) completedModules.delete(id);
+            else completedModules.add(id);
+
+            openModule(id);
+            renderModulesGrid();
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const count = completedModules.size;
+            const percent = Math.round((count / 15) * 100);
+            document.getElementById('progression-percentage').innerText = `${percent}%`;
+            document.getElementById('progression-bar').style.width = `${percent}%`;
+            document.getElementById('progression-subtitle').innerText = `${count} / 15 modules complétés`;
+        }
+
+        // Conjugation Laboratory Logic
+        function populateConjugationSelect() {
+            const select = document.getElementById('conj-verb-select');
+            select.innerHTML = CONJUGAISON_DATA.map((item, idx) => `
+                <option value="${idx}">${item.verb}</option>
+            `).join('');
+        }
+
+        function updateConjugationTable() {
+            const verbIdx = document.getElementById('conj-verb-select').value;
+            const tense = document.getElementById('conj-tense-select').value;
+            const verbData = CONJUGAISON_DATA[verbIdx];
+            const tbody = document.getElementById('conjugation-table-body');
+
+            const pronouns = [
+                { key: 'ana', ar: 'أَنَا', fr: 'Je' },
+                { key: 'anta', ar: 'أَنْتَ', fr: 'Tu (masculin)' },
+                { key: 'anti', ar: 'أَنْتِ', fr: 'Tu (féminin)' },
+                { key: 'huwa', ar: 'هُوَ', fr: 'Il' },
+                { key: 'hiya', ar: 'هِيَ', fr: 'Elle' },
+                { key: 'nahnu', ar: 'نَحْنُ', fr: 'Nous' }
+            ];
+
+            tbody.innerHTML = pronouns.map(p => {
+                const conjugated = verbData[tense][p.key] || '—';
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-arabic font-bold text-base text-slate-800">${p.ar}</td>
+                        <td class="p-3 text-slate-500 text-xs">${p.fr}</td>
+                        <td class="p-3 text-right font-arabic font-bold text-xl text-skybrand-600">${conjugated}</td>
+                        <td class="p-3 text-center">
+                            ${conjugated !== '—' ? `
+                                <button onclick="speakText('${conjugated}')" class="p-1.5 text-slate-400 hover:text-skybrand-600 transition">
+                                    <i class="fa-solid fa-volume-high text-sm"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function speakSelectedConjugation() {
+            const verbIdx = document.getElementById('conj-verb-select').value;
+            speakText(CONJUGAISON_DATA[verbIdx].verb.split(' ')[0]);
+        }
+
+        // Flashcards Logic
+        function buildGlobalVocabList() {
+            allVocabList = [];
+            MODULES.forEach(m => {
+                m.vocab.forEach(v => allVocabList.push(v));
+            });
+        }
+
+        function renderFlashcard() {
+            if (allVocabList.length === 0) return;
+            const card = allVocabList[currentFCIndex];
+            document.getElementById('fc-arabic').innerText = card.ar;
+            document.getElementById('fc-phonetic').innerText = card.ph;
+            document.getElementById('fc-french').innerText = card.fr;
+            document.getElementById('flashcard-counter').innerText = `${currentFCIndex + 1} / ${allVocabList.length}`;
+
+            // Reset Flip State
+            document.getElementById('flashcard-element').classList.remove('flipped');
+        }
+
+        function nextFlashcard() {
+            currentFCIndex = (currentFCIndex + 1) % allVocabList.length;
+            renderFlashcard();
+        }
+
+        function prevFlashcard() {
+            currentFCIndex = (currentFCIndex - 1 + allVocabList.length) % allVocabList.length;
+            renderFlashcard();
+        }
+
+        // Quiz Logic
+        function renderQuizQuestion() {
+            const q = QUIZ_QUESTIONS[currentQuizIndex];
+            document.getElementById('quiz-question-number').innerText = `Question ${currentQuizIndex + 1} / ${QUIZ_QUESTIONS.length}`;
+            document.getElementById('quiz-question-text').innerText = q.q;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = q.options.map((opt, idx) => `
+                <button onclick="selectQuizOption(${idx})" class="quiz-opt-btn w-full p-4 rounded-xl border border-slate-200 text-left font-medium text-slate-700 hover:bg-skybrand-50 hover:border-skybrand-300 transition flex items-center justify-between">
+                    <span>${opt}</span>
+                    <i class="fa-regular fa-circle text-slate-300"></i>
+                </button>
+            `).join('');
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+        }
+
+        function selectQuizOption(index) {
+            const q = QUIZ_QUESTIONS[currentQuizIndex];
+            const buttons = document.querySelectorAll('.quiz-opt-btn');
+            const feedback = document.getElementById('quiz-feedback');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (index === q.correct) {
+                buttons[index].classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+                feedback.className = "p-4 rounded-xl text-sm mb-6 bg-emerald-100 text-emerald-800 font-medium";
+                feedback.innerText = "Excellente réponse ! Bravo !";
+                quizScore += 20;
+            } else {
+                buttons[index].classList.add('bg-rose-50', 'border-rose-500', 'text-rose-800');
+                buttons[q.correct].classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+                feedback.className = "p-4 rounded-xl text-sm mb-6 bg-rose-100 text-rose-800 font-medium";
+                feedback.innerText = `Dommage ! La bonne réponse était : ${q.options[q.correct]}`;
+            }
+
+            feedback.classList.remove('hidden');
+            document.getElementById('quiz-score').innerText = `Score: ${quizScore}`;
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < QUIZ_QUESTIONS.length) {
+                renderQuizQuestion();
+            } else {
+                // End of quiz
+                document.getElementById('quiz-body').innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fa-solid fa-trophy text-5xl text-amber-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2">Quiz Terminé !</h3>
+                        <p class="text-slate-600 mb-6">Votre score final est de <span class="font-bold text-skybrand-600 text-xl">${quizScore} / 100</span></p>
+                        <button onclick="resetQuiz()" class="px-6 py-3 bg-skybrand-500 hover:bg-skybrand-600 text-white font-bold rounded-xl text-sm transition shadow-md">
+                            Recommencer le Quiz
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').innerText = `Score: 0`;
+            renderQuizQuestion();
+        }
+
+        // Lexicon / Dictionnaire
+        function renderLexiconTable(filter = '') {
+            const tbody = document.getElementById('lexicon-table-body');
+            const filtered = allVocabList.filter(item =>
+                item.ar.includes(filter) ||
+                item.ph.toLowerCase().includes(filter.toLowerCase()) ||
+                item.fr.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-arabic font-bold text-xl text-slate-800">${item.ar}</td>
+                    <td class="p-3 text-slate-500 text-xs italic">${item.ph}</td>
+                    <td class="p-3 text-slate-700 font-medium text-sm">${item.fr}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="speakText('${item.ar}')" class="p-1.5 text-slate-400 hover:text-skybrand-600 transition">
+                            <i class="fa-solid fa-volume-high text-sm"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterLexicon(query) {
+            renderLexiconTable(query);
+        }
+
+        // Global Search
+        function handleSearch(query) {
+            const dropdown = document.getElementById('search-results-dropdown');
+            if (!query.trim()) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            const results = [];
+            MODULES.forEach(m => {
+                if (m.title.toLowerCase().includes(query.toLowerCase())) {
+                    results.push({ type: 'Module', text: m.title, action: () => { switchTab('modules'); openModule(m.id); } });
+                }
+                m.vocab.forEach(v => {
+                    if (v.fr.toLowerCase().includes(query.toLowerCase()) || v.ar.includes(query) || v.ph.toLowerCase().includes(query.toLowerCase())) {
+                        results.push({ type: 'Vocabulaire', text: `${v.ar} (${v.fr})`, action: () => { speakText(v.ar); } });
+                    }
+                });
+            });
+
+            if (results.length > 0) {
+                dropdown.innerHTML = results.slice(0, 6).map(r => `
+                    <div onclick="executeSearchAction(${results.indexOf(r)})" class="p-3 hover:bg-skybrand-50 cursor-pointer border-b border-slate-50 flex justify-between items-center text-sm">
+                        <span class="font-medium text-slate-700">${r.text}</span>
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">${r.type}</span>
+                    </div>
+                `).join('');
+                dropdown.classList.remove('hidden');
+                window.searchResultsActions = results.map(r => r.action);
+            } else {
+                dropdown.innerHTML = `<div class="p-4 text-xs text-slate-400 text-center">Aucun résultat trouvé</div>`;
+                dropdown.classList.remove('hidden');
+            }
+        }
+
+        function executeSearchAction(index) {
+            if (window.searchResultsActions && window.searchResultsActions[index]) {
+                window.searchResultsActions[index]();
+                document.getElementById('search-results-dropdown').classList.add('hidden');
+                document.getElementById('global-search-input').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
